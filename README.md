@@ -31,11 +31,11 @@ Total Tests: 70
 Failures: 0
 Avg Response Time: 144 ms
 
-## To execute these tests straight from your command-line terminal or CI/CD pipelines, install Newman and execute the file:
+## **To execute these tests straight from your command-line terminal or CI/CD pipelines, install Newman and execute the file:**
 
-# Install Newman globally via npm
+# **Install Newman globally via npm**
 npm install -g newman
 
-# Run the collection
+# **Run the collection**
 newman run My_Collection.postman_collection.json -e Test_Env1.postman_environment.json
 
