@@ -1,0 +1,12 @@
+name: TestEnv1
+values:
+  - key: BaseUrl
+    value: ''
+  - key: accessToken
+    value: ''
+  - key: product_id
+    value: ''
+  - key: searched_product_id
+    value: ''
+  - key: cart_id
+    value: ''
