@@ -6,7 +6,7 @@ A robust, automated API testing framework designed to validate foundational e-co
 
 ## 🎯 Key Features & Test Coverage
 
-The test collection maximizes validation stability across multiple functional areas, executing **70 micro-assertions** with a 100% pass rate:
+The test collection maximizes validation stability across multiple functional areas, executing **80 micro-assertions**:
 
 * **🔐 Authentication Workflows (`/auth`)**
     * Simulates dynamic user login sequences (`POST /auth/login`).
@@ -19,6 +19,10 @@ The test collection maximizes validation stability across multiple functional ar
     * Validates operations for items added to shopping carts (`POST`).
     * Assures real-time calculations work properly (verifying totals change appropriately based on item mutation).
     * Validates structural payload updates via `PUT`/`PATCH` methods.
+* **🖼️ Media Handling (`/images`)**
+    * Validates image resource paths and structure.
+* **⚠️ Negative Boundary Scenarios**
+    * Assures API resilience against corrupt parameters and enforces payload constraints.
 
 ---
 
@@ -27,15 +31,6 @@ The test collection maximizes validation stability across multiple functional ar
 ```text
 Run Status: SUCCESS
 Iterations: 1
-Total Tests: 70
-Failures: 0
-Avg Response Time: 144 ms
-
-## **To execute these tests straight from your command-line terminal or CI/CD pipelines, install Newman and execute the file:**
-
-# **Install Newman globally via npm**
-npm install -g newman
-
-# **Run the collection**
-newman run My_Collection.postman_collection.json -e Test_Env1.postman_environment.json
-
+Total Tests: 80
+Failures: 1
+Avg Response Time: 135 ms
