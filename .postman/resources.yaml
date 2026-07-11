@@ -3,6 +3,6 @@ workspace:
 cloudResources:
   collections:
     ..\postman\collections\My Collection: ec262974-8074-4932-84c2-fc5ebc07616e
-    ../postman/collections/My Collection: 56110271-9dee375b-de56-42a8-8ca6-9aa3acf4afea
+    ../postman/collections/My Collection: 56110271-0c5025c2-54df-4317-90ae-c9a1cdca880a
   environments:
     ../postman/environments/TestEnv1.environment.yaml: 56110271-dcc78335-a491-4bf3-91fc-dacee87114ce

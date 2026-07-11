@@ -1,0 +1,58 @@
+{
+	"id": "dcc78335-a491-4bf3-91fc-dacee87114ce",
+	"name": "TestEnv1",
+	"values": [
+		{
+			"key": "BaseUrl",
+			"value": "https://dummyjson.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "product_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "searched_product_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "cart_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "saved_image_blob",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "image_size",
+			"value": "200x100",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "image_color",
+			"value": "282828",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-07-11T07:38:18.012Z",
+	"_postman_exported_using": "Postman/12.18.5-260710-0232"
+}

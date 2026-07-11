@@ -1,0 +1,568 @@
+{
+  "info": {
+    "_postman_id": "0c5025c2-54df-4317-90ae-c9a1cdca880a",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56110271"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\nlet responseJson = pm.response.json();\r\npm.environment.set(\"accessToken\", responseJson.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"emilys\",\r\n    \"password\": \"emilyspass\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/auth/login",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nlet responseJson = pm.response.json();\r\nresponseJson.firstName = \"Emily\";\r\nresponseJson.lastName = \"Johnson\";\r\nresponseJson.id = 1;\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/auth/me",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\nlet responseJson = pm.response.json();\r\npm.environment.set(\"product_id\", responseJson.products[0].id);\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/products",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nlet responseJson = pm.response.json();\n\n// Top-level field presence\npm.test(\"Response has all required fields\", function () {\n    pm.expect(responseJson).to.have.all.keys(\n        \"id\", \"title\", \"description\", \"category\", \"price\",\n        \"discountPercentage\", \"rating\", \"stock\", \"tags\", \"brand\",\n        \"sku\", \"weight\", \"dimensions\", \"warrantyInformation\",\n        \"shippingInformation\", \"availabilityStatus\", \"reviews\",\n        \"returnPolicy\", \"minimumOrderQuantity\", \"meta\", \"images\", \"thumbnail\"\n    );\n});\n\n// id\npm.test(\"id is a positive integer\", function () {\n    pm.expect(responseJson.id).to.be.a(\"number\");\n    pm.expect(responseJson.id).to.be.above(0);\n});\n\n// id matches environment variable product_id\npm.test(\"id matches environment variable product_id\", function () {\n    const productId = parseInt(pm.environment.get(\"product_id\"));\n    pm.expect(responseJson.id).to.eql(productId);\n});\n\n// title\npm.test(\"title is a non-empty string\", function () {\n    pm.expect(responseJson.title).to.be.a(\"string\").and.not.empty;\n});\n\n// description\npm.test(\"description is a non-empty string\", function () {\n    pm.expect(responseJson.description).to.be.a(\"string\").and.not.empty;\n});\n\n// category\npm.test(\"category is a non-empty string\", function () {\n    pm.expect(responseJson.category).to.be.a(\"string\").and.not.empty;\n});\n\n// price\npm.test(\"price is a positive number\", function () {\n    pm.expect(responseJson.price).to.be.a(\"number\");\n    pm.expect(responseJson.price).to.be.above(0);\n});\n\n// discountPercentage\npm.test(\"discountPercentage is a number between 0 and 100\", function () {\n    pm.expect(responseJson.discountPercentage).to.be.a(\"number\");\n    pm.expect(responseJson.discountPercentage).to.be.within(0, 100);\n});\n\n// rating\npm.test(\"rating is a number between 0 and 5\", function () {\n    pm.expect(responseJson.rating).to.be.a(\"number\");\n    pm.expect(responseJson.rating).to.be.within(0, 5);\n});\n\n// stock\npm.test(\"stock is a non-negative integer\", function () {\n    pm.expect(responseJson.stock).to.be.a(\"number\");\n    pm.expect(responseJson.stock).to.be.at.least(0);\n});\n\n// tags\npm.test(\"tags is a non-empty array of strings\", function () {\n    pm.expect(responseJson.tags).to.be.an(\"array\").and.not.empty;\n    responseJson.tags.forEach(tag => pm.expect(tag).to.be.a(\"string\"));\n});\n\n// brand\npm.test(\"brand is a non-empty string\", function () {\n    pm.expect(responseJson.brand).to.be.a(\"string\").and.not.empty;\n});\n\n// sku\npm.test(\"sku is a non-empty string\", function () {\n    pm.expect(responseJson.sku).to.be.a(\"string\").and.not.empty;\n});\n\n// weight\npm.test(\"weight is a positive number\", function () {\n    pm.expect(responseJson.weight).to.be.a(\"number\");\n    pm.expect(responseJson.weight).to.be.above(0);\n});\n\n// dimensions\npm.test(\"dimensions has width, height, and depth as positive numbers\", function () {\n    pm.expect(responseJson.dimensions).to.be.an(\"object\");\n    pm.expect(responseJson.dimensions.width).to.be.a(\"number\").and.above(0);\n    pm.expect(responseJson.dimensions.height).to.be.a(\"number\").and.above(0);\n    pm.expect(responseJson.dimensions.depth).to.be.a(\"number\").and.above(0);\n});\n\n// warrantyInformation\npm.test(\"warrantyInformation is a non-empty string\", function () {\n    pm.expect(responseJson.warrantyInformation).to.be.a(\"string\").and.not.empty;\n});\n\n// shippingInformation\npm.test(\"shippingInformation is a non-empty string\", function () {\n    pm.expect(responseJson.shippingInformation).to.be.a(\"string\").and.not.empty;\n});\n\n// availabilityStatus\npm.test(\"availabilityStatus is a non-empty string\", function () {\n    pm.expect(responseJson.availabilityStatus).to.be.a(\"string\").and.not.empty;\n});\n\n// reviews\npm.test(\"reviews is an array\", function () {\n    pm.expect(responseJson.reviews).to.be.an(\"array\");\n});\n\npm.test(\"each review has required fields with correct types\", function () {\n    responseJson.reviews.forEach(function (review) {\n        pm.expect(review.rating).to.be.a(\"number\").and.within(0, 5);\n        pm.expect(review.comment).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.date).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.reviewerName).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.reviewerEmail).to.be.a(\"string\").and.match(/.+@.+\\..+/);\n    });\n});\n\n// returnPolicy\npm.test(\"returnPolicy is a non-empty string\", function () {\n    pm.expect(responseJson.returnPolicy).to.be.a(\"string\").and.not.empty;\n});\n\n// minimumOrderQuantity\npm.test(\"minimumOrderQuantity is a positive integer\", function () {\n    pm.expect(responseJson.minimumOrderQuantity).to.be.a(\"number\");\n    pm.expect(responseJson.minimumOrderQuantity).to.be.above(0);\n});\n\n// meta\npm.test(\"meta has createdAt, updatedAt, barcode, and qrCode\", function () {\n    pm.expect(responseJson.meta).to.be.an(\"object\");\n    pm.expect(responseJson.meta.createdAt).to.be.a(\"string\").and.not.empty;\n    pm.expect(responseJson.meta.updatedAt).to.be.a(\"string\").and.not.empty;\n    pm.expect(responseJson.meta.barcode).to.be.a(\"string\").and.not.empty;\n    pm.expect(responseJson.meta.qrCode).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/);\n});\n\n// images\npm.test(\"images is a non-empty array of URL strings\", function () {\n    pm.expect(responseJson.images).to.be.an(\"array\").and.not.empty;\n    responseJson.images.forEach(img => pm.expect(img).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/));\n});\n\n// thumbnail\npm.test(\"thumbnail is a valid URL string\", function () {\n    pm.expect(responseJson.thumbnail).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/products/{{product_id}}",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{product_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nlet responseJson = pm.response.json();\nlet product = responseJson.products[0];\npm.environment.set(\"searched_product_id\", product.id);\n\n// Top-level field presence\npm.test(\"Response has all required fields\", function () {\n    pm.expect(product).to.have.all.keys(\n        \"id\", \"title\", \"description\", \"category\", \"price\",\n        \"discountPercentage\", \"rating\", \"stock\", \"tags\",\n        \"sku\", \"weight\", \"dimensions\", \"warrantyInformation\",\n        \"shippingInformation\", \"availabilityStatus\", \"reviews\",\n        \"returnPolicy\", \"minimumOrderQuantity\", \"meta\", \"images\", \"thumbnail\"\n    );\n});\n\n// id\npm.test(\"id is a positive integer\", function () {\n    pm.expect(product.id).to.be.a(\"number\");\n    pm.expect(product.id).to.be.above(0);\n});\n\n// id matches environment variable product_id\npm.test(\"id matches environment variable product_id\", function () {\n    const productId = parseInt(pm.environment.get(\"searched_product_id\"));\n    pm.expect(product.id).to.eql(productId);\n});\n\n// title\npm.test(\"title is a non-empty string\", function () {\n    pm.expect(product.title).to.be.a(\"string\").and.not.empty;\n    pm.expect(product.title).to.include(\"Dog Food\");\n});\n\n// description\npm.test(\"description is a non-empty string\", function () {\n    pm.expect(product.description).to.be.a(\"string\").and.not.empty;\n});\n\n// category\npm.test(\"category is a non-empty string\", function () {\n    pm.expect(product.category).to.be.a(\"string\").and.not.empty;\n});\n\n// price\npm.test(\"price is a positive number\", function () {\n    pm.expect(product.price).to.be.a(\"number\");\n    pm.expect(product.price).to.be.above(0);\n});\n\n// discountPercentage\npm.test(\"discountPercentage is a number between 0 and 100\", function () {\n    pm.expect(product.discountPercentage).to.be.a(\"number\");\n    pm.expect(product.discountPercentage).to.be.within(0, 100);\n});\n\n// rating\npm.test(\"rating is a number between 0 and 5\", function () {\n    pm.expect(product.rating).to.be.a(\"number\");\n    pm.expect(product.rating).to.be.within(0, 5);\n});\n\n// stock\npm.test(\"stock is a non-negative integer\", function () {\n    pm.expect(product.stock).to.be.a(\"number\");\n    pm.expect(product.stock).to.be.at.least(0);\n});\n\n// tags\npm.test(\"tags is a non-empty array of strings\", function () {\n    pm.expect(product.tags).to.be.an(\"array\").and.not.empty;\n    product.tags.forEach(tag => pm.expect(tag).to.be.a(\"string\"));\n    pm.expect(product.tags).to.include(\"dog food\");\n});\n\n// sku\npm.test(\"sku is a non-empty string\", function () {\n    pm.expect(product.sku).to.be.a(\"string\").and.not.empty;\n});\n\n// weight\npm.test(\"weight is a positive number\", function () {\n    pm.expect(product.weight).to.be.a(\"number\");\n    pm.expect(product.weight).to.be.above(0);\n});\n\n// dimensions\npm.test(\"dimensions has width, height, and depth as positive numbers\", function () {\n    pm.expect(product.dimensions).to.be.an(\"object\");\n    pm.expect(product.dimensions.width).to.be.a(\"number\").and.above(0);\n    pm.expect(product.dimensions.height).to.be.a(\"number\").and.above(0);\n    pm.expect(product.dimensions.depth).to.be.a(\"number\").and.above(0);\n});\n\n// warrantyInformation\npm.test(\"warrantyInformation is a non-empty string\", function () {\n    pm.expect(product.warrantyInformation).to.be.a(\"string\").and.not.empty;\n});\n\n// shippingInformation\npm.test(\"shippingInformation is a non-empty string\", function () {\n    pm.expect(product.shippingInformation).to.be.a(\"string\").and.not.empty;\n});\n\n// availabilityStatus\npm.test(\"availabilityStatus is a non-empty string\", function () {\n    pm.expect(product.availabilityStatus).to.be.a(\"string\").and.not.empty;\n});\n\n// reviews\npm.test(\"reviews is an array\", function () {\n    pm.expect(product.reviews).to.be.an(\"array\");\n});\n\npm.test(\"each review has required fields with correct types\", function () {\n    product.reviews.forEach(function (review) {\n        pm.expect(review.rating).to.be.a(\"number\").and.within(0, 5);\n        pm.expect(review.comment).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.date).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.reviewerName).to.be.a(\"string\").and.not.empty;\n        pm.expect(review.reviewerEmail).to.be.a(\"string\").and.match(/.+@.+\\..+/);\n    });\n});\n\n// returnPolicy\npm.test(\"returnPolicy is a non-empty string\", function () {\n    pm.expect(product.returnPolicy).to.be.a(\"string\").and.not.empty;\n});\n\n// minimumOrderQuantity\npm.test(\"minimumOrderQuantity is a positive integer\", function () {\n    pm.expect(product.minimumOrderQuantity).to.be.a(\"number\");\n    pm.expect(product.minimumOrderQuantity).to.be.above(0);\n});\n\n// meta\npm.test(\"meta has createdAt, updatedAt, barcode, and qrCode\", function () {\n    pm.expect(product.meta).to.be.an(\"object\");\n    pm.expect(product.meta.createdAt).to.be.a(\"string\").and.not.empty;\n    pm.expect(product.meta.updatedAt).to.be.a(\"string\").and.not.empty;\n    pm.expect(product.meta.barcode).to.be.a(\"string\").and.not.empty;\n    pm.expect(product.meta.qrCode).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/);\n});\n\n// images\npm.test(\"images is a non-empty array of URL strings\", function () {\n    pm.expect(product.images).to.be.an(\"array\").and.not.empty;\n    product.images.forEach(img => pm.expect(img).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/));\n});\n\n// thumbnail\npm.test(\"thumbnail is a valid URL string\", function () {\n    pm.expect(product.thumbnail).to.be.a(\"string\").and.match(/^https?:\\/\\/.+/);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/products/search?q=dog food",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "dog food"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Add to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nlet responseJson = pm.response.json();\n\npm.test(\"Cart ID is not null\", function () {\n    pm.response.to.have.jsonBody('id'); \n    pm.expect(responseJson.products.length).to.be.above(0);\n    });\n\npm.environment.set(\"cart_id\",responseJson.id);\n\npm.test(\"userId is correct\", function () {\n    pm.expect(responseJson.userId).to.eql(1);\n});\n\npm.test(\"totalProducts is correct\", function () {\n    pm.expect(responseJson.totalProducts).to.eql(2);\n});\n\npm.test(\"totalQuantity is correct\", function () {\n    pm.expect(responseJson.totalQuantity).to.eql(5);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": 1,\r\n    \"products\": [\r\n        {\r\n            \"id\": {{product_id}},\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"id\": {{searched_product_id}},\r\n            \"quantity\": 4\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/carts/add",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nlet responseJson = pm.response.json();\n\npm.test(\"total is a positive number\", function () {\n    pm.expect(responseJson.total).to.be.a(\"number\").and.above(0);\n});\n\npm.test(\"totalProducts is a positive integer\", function () {\n    pm.expect(responseJson.totalProducts).to.be.a(\"number\").and.above(0);\n});\n\npm.test(\"totalQuantity is a positive integer\", function () {\n    pm.expect(responseJson.totalQuantity).to.be.a(\"number\").and.above(0);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/carts/31",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "31"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nlet responseJson = pm.response.json();\n\npm.test(\"totalProducts is 1\", function () {\n    pm.expect(responseJson.totalProducts).to.eql(1);\n});\n\npm.test(\"totalQuantity is 1\", function () {\n    pm.expect(responseJson.totalQuantity).to.eql(1);\n});\n\npm.test(\"product id matches environment product_id\", function () {\n    let productId = parseInt(pm.environment.get(\"product_id\"));\n    pm.expect(responseJson.products[0].id).to.eql(productId);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": 1,\r\n    \"products\": [\r\n        {\r\n            \"id\": {{product_id}},\r\n            \"quantity\": 1\r\n        }\r\n        \r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/carts/31",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "31"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/carts/31",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "31"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "item": [
+        {
+          "name": "Get Image",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Format Validation: Verify the server returned a valid PNG image format\r\npm.test(\"Content-Type header confirms it is a PNG image\", function () {\r\n    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r\n});\r\n// Get the raw binary stream from the response\r\nconst responseStream = pm.response.stream;\r\n\r\n// Convert the stream data into a Node.js Buffer\r\nconst imageBuffer = Buffer.from(responseStream);\r\n\r\n// Save it to a collection or environment variable as a Base64 string\r\n// (Since raw Blobs/Buffers can't be stored directly as text variables)\r\nconst base64Image = imageBuffer.toString('base64');\r\npm.environment.set(\"saved_image_blob\", base64Image);\r\n\r\n// Verification Check for your automation suites\r\npm.test(\"Response contains a valid image payload\", function () {\r\n    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/image/{{image_size}}/",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "image",
+                "{{image_size}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Image with background color",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Format Validation: Verify the server returned a valid PNG image format\r\npm.test(\"Content-Type header confirms it is a PNG image\", function () {\r\n    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r\n});\r\n// Get the raw binary stream from the response\r\nconst responseStream = pm.response.stream;\r\n\r\n// Convert the stream data into a Node.js Buffer\r\nconst imageBuffer = Buffer.from(responseStream);\r\n\r\n// Save it to a collection or environment variable as a Base64 string\r\n// (Since raw Blobs/Buffers can't be stored directly as text variables)\r\nconst base64Image = imageBuffer.toString('base64');\r\npm.environment.set(\"saved_image_blob\", base64Image);\r\n\r\n// Verification Check for your automation suites\r\npm.test(\"Response contains a valid image payload\", function () {\r\n    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r\n\r\n    // Check standard PNG hex signature header magic bytes [137, 80, 78, 71]\r\n    pm.expect(imageBuffer[0]).to.eql(0x89);\r\n    pm.expect(imageBuffer[1]).to.eql(0x50);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/image//{{image_size}}/{{image_color}}",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "image",
+                "",
+                "{{image_size}}",
+                "{{image_color}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Negative Scenarios",
+      "item": [
+        {
+          "name": "Check Invalid Product Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});\n\nlet responseJson = pm.response.json();\n\npm.test(\"Response message indicates product not found\", function () {\n    pm.expect(responseJson.message).to.be.a(\"string\").and.not.empty;\n    pm.expect(responseJson.message).to.include(\"not found\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/products/{{invalid_id}}",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{invalid_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\n    pm.response.to.have.status(400);\n});\n\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": 1,\r\n    \"products\": [\r\n        {\r\n            \"id\": {{product_id}}\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"id\": {{searched_product_id}},\r\n            \"quantity\": 4\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BaseUrl}}/carts/add",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Image with background color",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// Format Validation: Verify the server returned a valid PNG image format\r\npm.test(\"Content-Type header confirms it is a PNG image\", function () {\r\n    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r\n});\r\n// Get the raw binary stream from the response\r\nconst responseStream = pm.response.stream;\r\n\r\n// Convert the stream data into a Node.js Buffer\r\nconst imageBuffer = Buffer.from(responseStream);\r\n\r\n// Save it to a collection or environment variable as a Base64 string\r\n// (Since raw Blobs/Buffers can't be stored directly as text variables)\r\nconst base64Image = imageBuffer.toString('base64');\r\npm.environment.set(\"saved_image_blob\", base64Image);\r\n\r\n// Verification Check for your automation suites\r\npm.test(\"Response contains a valid image payload\", function () {\r\n    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r\n\r\n    // Check standard PNG hex signature header magic bytes [137, 80, 78, 71]\r\n    // this is expected to fail by design\r\n    pm.expect(imageBuffer[0]).to.eql(0xFF);\r\n    pm.expect(imageBuffer[1]).to.eql(0xD8);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BaseUrl}}/image//{{image_size}}/{{image_color}}",
+              "host": [
+                "{{BaseUrl}}"
+              ],
+              "path": [
+                "image",
+                "",
+                "{{image_size}}",
+                "{{image_color}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

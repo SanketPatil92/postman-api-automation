@@ -1,0 +1,21 @@
+{
+  "name": "postman-api-automation",
+  "version": "1.0.0",
+  "description": "A robust, automated API testing framework designed to validate foundational e-commerce backend workflows using **Postman**. This suite implements end-to-end integration flows across user authentication, product search capabilities, and dynamic shopping cart modifications.",
+  "main": "index.js",
+  "scripts": {
+  "test:regression": "newman run postman_collection.json -e postman/environments/TestEnv1.environment.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SanketPatil92/postman-api-automation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SanketPatil92/postman-api-automation/issues"
+  },
+  "homepage": "https://github.com/SanketPatil92/postman-api-automation#readme"
+}
