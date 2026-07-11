@@ -1,0 +1,44 @@
+$kind: http-request
+name: Add to Cart
+url: "{{BaseUrl}}/carts/add"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"userId\": 1,\r
+
+    \    \"products\": [\r
+
+    \        {\r
+
+    \            \"id\": {{product_id}}\r
+
+    \            \"quantity\": 1\r
+
+    \        },\r
+
+    \        {\r
+
+    \            \"id\": {{searched_product_id}},\r
+
+    \            \"quantity\": 4\r
+
+    \        }\r
+
+    \    ]\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: |+
+      pm.test("Status code is 400", function () {
+          pm.response.to.have.status(400);
+      });
+
+    language: text/javascript
+order: 35764402134190

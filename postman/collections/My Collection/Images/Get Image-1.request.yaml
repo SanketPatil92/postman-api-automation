@@ -1,0 +1,55 @@
+$kind: http-request
+name: Get Image
+url: "{{BaseUrl}}/image/{{image_size}}/"
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // Format Validation: Verify the server returned a valid PNG image
+      format\r
+
+      pm.test(\"Content-Type header confirms it is a PNG image\", function ()
+      {\r
+
+      \    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r
+
+      });\r
+
+      // Get the raw binary stream from the response\r
+
+      const responseStream = pm.response.stream;\r
+
+      \r
+
+      // Convert the stream data into a Node.js Buffer\r
+
+      const imageBuffer = Buffer.from(responseStream);\r
+
+      \r
+
+      // Save it to a collection or environment variable as a Base64 string\r
+
+      // (Since raw Blobs/Buffers can't be stored directly as text variables)\r
+
+      const base64Image = imageBuffer.toString('base64');\r
+
+      pm.environment.set(\"saved_image_blob\", base64Image);\r
+
+      \r
+
+      // Verification Check for your automation suites\r
+
+      pm.test(\"Response contains a valid image payload\", function () {\r
+
+      \    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r
+
+      });"
+    language: text/javascript
+order: 1000

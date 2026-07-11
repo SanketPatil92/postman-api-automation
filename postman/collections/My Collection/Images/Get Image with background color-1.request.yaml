@@ -1,0 +1,64 @@
+$kind: http-request
+name: Get Image with background color
+url: "{{BaseUrl}}/image//{{image_size}}/{{image_color}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // Format Validation: Verify the server returned a valid PNG image
+      format\r
+
+      pm.test(\"Content-Type header confirms it is a PNG image\", function ()
+      {\r
+
+      \    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r
+
+      });\r
+
+      // Get the raw binary stream from the response\r
+
+      const responseStream = pm.response.stream;\r
+
+      \r
+
+      // Convert the stream data into a Node.js Buffer\r
+
+      const imageBuffer = Buffer.from(responseStream);\r
+
+      \r
+
+      // Save it to a collection or environment variable as a Base64 string\r
+
+      // (Since raw Blobs/Buffers can't be stored directly as text variables)\r
+
+      const base64Image = imageBuffer.toString('base64');\r
+
+      pm.environment.set(\"saved_image_blob\", base64Image);\r
+
+      \r
+
+      // Verification Check for your automation suites\r
+
+      pm.test(\"Response contains a valid image payload\", function () {\r
+
+      \    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r
+
+      \r
+
+      \    // Check standard PNG hex signature header magic bytes [137, 80, 78,
+      71]\r
+
+      \    pm.expect(imageBuffer[0]).to.eql(0x89);\r
+
+      \    pm.expect(imageBuffer[1]).to.eql(0x50);\r
+
+      });"
+    language: text/javascript
+order: 2612

@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{BaseUrl}}/auth/me"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      let responseJson = pm.response.json();\r
+
+      responseJson.firstName = \"Emily\";\r
+
+      responseJson.lastName = \"Johnson\";\r
+
+      responseJson.id = 1;\r\n"
+    language: text/javascript
+order: 2000

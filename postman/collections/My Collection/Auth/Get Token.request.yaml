@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{BaseUrl}}/auth/login"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"username\": \"emilys\",\r
+
+    \    \"password\": \"emilyspass\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      let responseJson = pm.response.json();\r
+
+      pm.environment.set(\"accessToken\", responseJson.accessToken);"
+    language: text/javascript
+order: 1000

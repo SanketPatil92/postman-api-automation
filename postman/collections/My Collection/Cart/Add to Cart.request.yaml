@@ -1,0 +1,63 @@
+$kind: http-request
+url: "{{BaseUrl}}/carts/add"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"userId\": 1,\r
+
+    \    \"products\": [\r
+
+    \        {\r
+
+    \            \"id\": {{product_id}},\r
+
+    \            \"quantity\": 1\r
+
+    \        },\r
+
+    \        {\r
+
+    \            \"id\": {{searched_product_id}},\r
+
+    \            \"quantity\": 4\r
+
+    \        }\r
+
+    \    ]\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      let responseJson = pm.response.json();
+
+      pm.test("Cart ID is not null", function () {
+          pm.response.to.have.jsonBody('id'); 
+          pm.expect(responseJson.products.length).to.be.above(0);
+          });
+
+      pm.environment.set("cart_id",responseJson.id);
+
+      pm.test("userId is correct", function () {
+          pm.expect(responseJson.userId).to.eql(1);
+      });
+
+      pm.test("totalProducts is correct", function () {
+          pm.expect(responseJson.totalProducts).to.eql(2);
+      });
+
+      pm.test("totalQuantity is correct", function () {
+          pm.expect(responseJson.totalQuantity).to.eql(5);
+      });
+    language: text/javascript
+order: 2000

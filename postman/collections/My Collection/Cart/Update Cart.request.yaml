@@ -1,0 +1,47 @@
+$kind: http-request
+url: "{{BaseUrl}}/carts/31"
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \    \"userId\": 1,\r
+
+    \    \"products\": [\r
+
+    \        {\r
+
+    \            \"id\": {{product_id}},\r
+
+    \            \"quantity\": 1\r
+
+    \        }\r
+
+    \        \r
+
+    \    ]\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      let responseJson = pm.response.json();
+
+      pm.test("totalProducts is 1", function () {
+          pm.expect(responseJson.totalProducts).to.eql(1);
+      });
+
+      pm.test("totalQuantity is 1", function () {
+          pm.expect(responseJson.totalQuantity).to.eql(1);
+      });
+
+      pm.test("product id matches environment product_id", function () {
+          let productId = parseInt(pm.environment.get("product_id"));
+          pm.expect(responseJson.products[0].id).to.eql(productId);
+      });
+    language: text/javascript
+order: 4000

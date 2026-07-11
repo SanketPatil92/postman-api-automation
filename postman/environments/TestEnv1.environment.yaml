@@ -10,3 +10,9 @@ values:
     value: ''
   - key: cart_id
     value: ''
+  - key: saved_image_blob
+    value: ''
+  - key: image_size
+    value: ''
+  - key: image_color
+    value: ''

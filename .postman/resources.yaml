@@ -1,0 +1,8 @@
+workspace:
+  id: 6364d6fa-279e-4f1e-829c-61a33c89000e
+cloudResources:
+  collections:
+    ..\postman\collections\My Collection: ec262974-8074-4932-84c2-fc5ebc07616e
+    ../postman/collections/My Collection: 56110271-9dee375b-de56-42a8-8ca6-9aa3acf4afea
+  environments:
+    ../postman/environments/TestEnv1.environment.yaml: 56110271-dcc78335-a491-4bf3-91fc-dacee87114ce

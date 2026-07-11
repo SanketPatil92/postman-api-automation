@@ -1,0 +1,126 @@
+$kind: http-request
+name: Get Image with background color
+url: "{{BaseUrl}}/image//{{image_size}}/{{image_color}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      // Format Validation: Verify the server returned a valid PNG image format\r
+
+      pm.test(\"Content-Type header confirms it is a PNG image\", function () {\r
+
+      \    pm.response.to.have.header(\"Content-Type\", \"image/png\");\r
+
+      });\r
+
+      // Get the raw binary stream from the response\r
+
+      const responseStream = pm.response.stream;\r
+
+      \r
+
+      // Convert the stream data into a Node.js Buffer\r
+
+      const imageBuffer = Buffer.from(responseStream);\r
+
+      \r
+
+      // Save it to a collection or environment variable as a Base64 string\r
+
+      // (Since raw Blobs/Buffers can't be stored directly as text variables)\r
+
+      const base64Image = imageBuffer.toString('base64');\r
+
+      pm.environment.set(\"saved_image_blob\", base64Image);\r
+
+      \r
+
+      // Verification Check for your automation suites\r
+
+      pm.test(\"Response contains a valid image payload\", function () {\r
+
+      \    pm.expect(imageBuffer.length).to.be.greaterThan(0);\r
+
+      \r
+
+      \    // Check standard PNG hex signature header magic bytes [137, 80, 78, 71]\r
+
+      \    // this is expected to fail by design\r
+
+      \    pm.expect(imageBuffer[0]).to.eql(0xFF);\r
+
+      \    pm.expect(imageBuffer[1]).to.eql(0xD8);\r
+
+      });"
+    language: text/javascript
+order: 1273978968197897
+events:
+  - listen: test
+    script: |-
+      // 1. Status code is 200
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      // 2. Response has Content-Type header for an image
+      pm.test("Content-Type is an image type", function () {
+          const contentType = pm.response.headers.get("Content-Type");
+          pm.expect(contentType).to.match(/^image\//);
+      });
+
+      // 3. Response body is not empty (binary data present)
+      pm.test("Response body is not empty", function () {
+          pm.expect(pm.response.responseSize).to.be.above(0);
+      });
+
+      // 4. Validate it is a PNG image (magic bytes: 89 50 4E 47)
+      pm.test("Response is a valid PNG image", function () {
+          const bytes = pm.response.stream.toArray();
+          pm.expect(bytes[0]).to.eql(0x89);
+          pm.expect(bytes[1]).to.eql(0x50); // P
+          pm.expect(bytes[2]).to.eql(0x4E); // N
+          pm.expect(bytes[3]).to.eql(0x47); // G
+      });
+
+      // 5. Response time is acceptable
+      pm.test("Response time is less than 3000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(3000);
+      });
+
+      // 6. Convert response to Blob and validate
+      pm.test("Response can be converted to a valid Blob", function () {
+          const bytes = pm.response.stream.toArray();
+          const uint8Array = new Uint8Array(bytes);
+          const blob = new Blob([uint8Array], { type: pm.response.headers.get("Content-Type") });
+          pm.expect(blob).to.not.be.undefined;
+          pm.expect(blob.size).to.be.above(0);
+          pm.expect(blob.type).to.match(/^image\//);
+      });
+
+      // 7. Validate image dimensions are 150x150 (from PNG IHDR chunk)
+      pm.test("Image dimensions are 150x150", function () {
+          const bytes = pm.response.stream.toArray();
+          // PNG structure: 8 bytes signature + 4 bytes length + 4 bytes "IHDR" = 16 bytes offset
+          // Width:  bytes 16-19 (big-endian 32-bit integer)
+          // Height: bytes 20-23 (big-endian 32-bit integer)
+          const width  = (bytes[16] << 24) | (bytes[17] << 16) | (bytes[18] << 8) | bytes[19];
+          const height = (bytes[20] << 24) | (bytes[21] << 16) | (bytes[22] << 8) | bytes[23];
+          pm.expect(width).to.eql(150, `Expected width 150 but got ${width}`);
+          pm.expect(height).to.eql(150, `Expected height 150 but got ${height}`);
+      });
+
+      // 8. Validate response body as base64 encoded image
+      pm.test("Response body is a valid base64 encoded image", function () {
+          const bytes = pm.response.stream.toArray();
+          const base64 = btoa(bytes.reduce((data, byte) => data + String.fromCharCode(byte), ""));
+          pm.expect(base64).to.be.a("string").and.to.have.length.above(0);
+          const dataUrl = `data:${pm.response.headers.get("Content-Type")};base64,${base64}`;
+          pm.expect(dataUrl).to.match(/^data:image\/.+;base64,/);
+      });

@@ -1,0 +1,171 @@
+$kind: http-request
+url: "{{BaseUrl}}/products/search?q=dog food"
+method: GET
+queryParams:
+  q: dog food
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      let responseJson = pm.response.json();
+      let product = responseJson.products[0];
+      pm.environment.set("searched_product_id", product.id);
+
+      // Top-level field presence
+      pm.test("Response has all required fields", function () {
+          pm.expect(product).to.have.all.keys(
+              "id", "title", "description", "category", "price",
+              "discountPercentage", "rating", "stock", "tags",
+              "sku", "weight", "dimensions", "warrantyInformation",
+              "shippingInformation", "availabilityStatus", "reviews",
+              "returnPolicy", "minimumOrderQuantity", "meta", "images", "thumbnail"
+          );
+      });
+
+      // id
+      pm.test("id is a positive integer", function () {
+          pm.expect(product.id).to.be.a("number");
+          pm.expect(product.id).to.be.above(0);
+      });
+
+      // id matches environment variable product_id
+      pm.test("id matches environment variable product_id", function () {
+          const productId = parseInt(pm.environment.get("searched_product_id"));
+          pm.expect(product.id).to.eql(productId);
+      });
+
+      // title
+      pm.test("title is a non-empty string", function () {
+          pm.expect(product.title).to.be.a("string").and.not.empty;
+          pm.expect(product.title).to.include("Dog Food");
+      });
+
+      // description
+      pm.test("description is a non-empty string", function () {
+          pm.expect(product.description).to.be.a("string").and.not.empty;
+      });
+
+      // category
+      pm.test("category is a non-empty string", function () {
+          pm.expect(product.category).to.be.a("string").and.not.empty;
+      });
+
+      // price
+      pm.test("price is a positive number", function () {
+          pm.expect(product.price).to.be.a("number");
+          pm.expect(product.price).to.be.above(0);
+      });
+
+      // discountPercentage
+      pm.test("discountPercentage is a number between 0 and 100", function () {
+          pm.expect(product.discountPercentage).to.be.a("number");
+          pm.expect(product.discountPercentage).to.be.within(0, 100);
+      });
+
+      // rating
+      pm.test("rating is a number between 0 and 5", function () {
+          pm.expect(product.rating).to.be.a("number");
+          pm.expect(product.rating).to.be.within(0, 5);
+      });
+
+      // stock
+      pm.test("stock is a non-negative integer", function () {
+          pm.expect(product.stock).to.be.a("number");
+          pm.expect(product.stock).to.be.at.least(0);
+      });
+
+      // tags
+      pm.test("tags is a non-empty array of strings", function () {
+          pm.expect(product.tags).to.be.an("array").and.not.empty;
+          product.tags.forEach(tag => pm.expect(tag).to.be.a("string"));
+          pm.expect(product.tags).to.include("dog food");
+      });
+
+      // sku
+      pm.test("sku is a non-empty string", function () {
+          pm.expect(product.sku).to.be.a("string").and.not.empty;
+      });
+
+      // weight
+      pm.test("weight is a positive number", function () {
+          pm.expect(product.weight).to.be.a("number");
+          pm.expect(product.weight).to.be.above(0);
+      });
+
+      // dimensions
+      pm.test("dimensions has width, height, and depth as positive numbers", function () {
+          pm.expect(product.dimensions).to.be.an("object");
+          pm.expect(product.dimensions.width).to.be.a("number").and.above(0);
+          pm.expect(product.dimensions.height).to.be.a("number").and.above(0);
+          pm.expect(product.dimensions.depth).to.be.a("number").and.above(0);
+      });
+
+      // warrantyInformation
+      pm.test("warrantyInformation is a non-empty string", function () {
+          pm.expect(product.warrantyInformation).to.be.a("string").and.not.empty;
+      });
+
+      // shippingInformation
+      pm.test("shippingInformation is a non-empty string", function () {
+          pm.expect(product.shippingInformation).to.be.a("string").and.not.empty;
+      });
+
+      // availabilityStatus
+      pm.test("availabilityStatus is a non-empty string", function () {
+          pm.expect(product.availabilityStatus).to.be.a("string").and.not.empty;
+      });
+
+      // reviews
+      pm.test("reviews is an array", function () {
+          pm.expect(product.reviews).to.be.an("array");
+      });
+
+      pm.test("each review has required fields with correct types", function () {
+          product.reviews.forEach(function (review) {
+              pm.expect(review.rating).to.be.a("number").and.within(0, 5);
+              pm.expect(review.comment).to.be.a("string").and.not.empty;
+              pm.expect(review.date).to.be.a("string").and.not.empty;
+              pm.expect(review.reviewerName).to.be.a("string").and.not.empty;
+              pm.expect(review.reviewerEmail).to.be.a("string").and.match(/.+@.+\..+/);
+          });
+      });
+
+      // returnPolicy
+      pm.test("returnPolicy is a non-empty string", function () {
+          pm.expect(product.returnPolicy).to.be.a("string").and.not.empty;
+      });
+
+      // minimumOrderQuantity
+      pm.test("minimumOrderQuantity is a positive integer", function () {
+          pm.expect(product.minimumOrderQuantity).to.be.a("number");
+          pm.expect(product.minimumOrderQuantity).to.be.above(0);
+      });
+
+      // meta
+      pm.test("meta has createdAt, updatedAt, barcode, and qrCode", function () {
+          pm.expect(product.meta).to.be.an("object");
+          pm.expect(product.meta.createdAt).to.be.a("string").and.not.empty;
+          pm.expect(product.meta.updatedAt).to.be.a("string").and.not.empty;
+          pm.expect(product.meta.barcode).to.be.a("string").and.not.empty;
+          pm.expect(product.meta.qrCode).to.be.a("string").and.match(/^https?:\/\/.+/);
+      });
+
+      // images
+      pm.test("images is a non-empty array of URL strings", function () {
+          pm.expect(product.images).to.be.an("array").and.not.empty;
+          product.images.forEach(img => pm.expect(img).to.be.a("string").and.match(/^https?:\/\/.+/));
+      });
+
+      // thumbnail
+      pm.test("thumbnail is a valid URL string", function () {
+          pm.expect(product.thumbnail).to.be.a("string").and.match(/^https?:\/\/.+/);
+      });
+    language: text/javascript
+order: 3000

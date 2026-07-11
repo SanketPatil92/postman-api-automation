@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{BaseUrl}}/carts/31"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      let responseJson = pm.response.json();
+
+      pm.test("total is a positive number", function () {
+          pm.expect(responseJson.total).to.be.a("number").and.above(0);
+      });
+
+      pm.test("totalProducts is a positive integer", function () {
+          pm.expect(responseJson.totalProducts).to.be.a("number").and.above(0);
+      });
+
+      pm.test("totalQuantity is a positive integer", function () {
+          pm.expect(responseJson.totalQuantity).to.be.a("number").and.above(0);
+      });
+    language: text/javascript
+order: 3000

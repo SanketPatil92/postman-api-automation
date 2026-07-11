@@ -1,0 +1,170 @@
+$kind: http-request
+url: "{{BaseUrl}}/products/{{product_id}}"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{accessToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      let responseJson = pm.response.json();
+
+      // Top-level field presence
+      pm.test("Response has all required fields", function () {
+          pm.expect(responseJson).to.have.all.keys(
+              "id", "title", "description", "category", "price",
+              "discountPercentage", "rating", "stock", "tags", "brand",
+              "sku", "weight", "dimensions", "warrantyInformation",
+              "shippingInformation", "availabilityStatus", "reviews",
+              "returnPolicy", "minimumOrderQuantity", "meta", "images", "thumbnail"
+          );
+      });
+
+      // id
+      pm.test("id is a positive integer", function () {
+          pm.expect(responseJson.id).to.be.a("number");
+          pm.expect(responseJson.id).to.be.above(0);
+      });
+
+      // id matches environment variable product_id
+      pm.test("id matches environment variable product_id", function () {
+          const productId = parseInt(pm.environment.get("product_id"));
+          pm.expect(responseJson.id).to.eql(productId);
+      });
+
+      // title
+      pm.test("title is a non-empty string", function () {
+          pm.expect(responseJson.title).to.be.a("string").and.not.empty;
+      });
+
+      // description
+      pm.test("description is a non-empty string", function () {
+          pm.expect(responseJson.description).to.be.a("string").and.not.empty;
+      });
+
+      // category
+      pm.test("category is a non-empty string", function () {
+          pm.expect(responseJson.category).to.be.a("string").and.not.empty;
+      });
+
+      // price
+      pm.test("price is a positive number", function () {
+          pm.expect(responseJson.price).to.be.a("number");
+          pm.expect(responseJson.price).to.be.above(0);
+      });
+
+      // discountPercentage
+      pm.test("discountPercentage is a number between 0 and 100", function () {
+          pm.expect(responseJson.discountPercentage).to.be.a("number");
+          pm.expect(responseJson.discountPercentage).to.be.within(0, 100);
+      });
+
+      // rating
+      pm.test("rating is a number between 0 and 5", function () {
+          pm.expect(responseJson.rating).to.be.a("number");
+          pm.expect(responseJson.rating).to.be.within(0, 5);
+      });
+
+      // stock
+      pm.test("stock is a non-negative integer", function () {
+          pm.expect(responseJson.stock).to.be.a("number");
+          pm.expect(responseJson.stock).to.be.at.least(0);
+      });
+
+      // tags
+      pm.test("tags is a non-empty array of strings", function () {
+          pm.expect(responseJson.tags).to.be.an("array").and.not.empty;
+          responseJson.tags.forEach(tag => pm.expect(tag).to.be.a("string"));
+      });
+
+      // brand
+      pm.test("brand is a non-empty string", function () {
+          pm.expect(responseJson.brand).to.be.a("string").and.not.empty;
+      });
+
+      // sku
+      pm.test("sku is a non-empty string", function () {
+          pm.expect(responseJson.sku).to.be.a("string").and.not.empty;
+      });
+
+      // weight
+      pm.test("weight is a positive number", function () {
+          pm.expect(responseJson.weight).to.be.a("number");
+          pm.expect(responseJson.weight).to.be.above(0);
+      });
+
+      // dimensions
+      pm.test("dimensions has width, height, and depth as positive numbers", function () {
+          pm.expect(responseJson.dimensions).to.be.an("object");
+          pm.expect(responseJson.dimensions.width).to.be.a("number").and.above(0);
+          pm.expect(responseJson.dimensions.height).to.be.a("number").and.above(0);
+          pm.expect(responseJson.dimensions.depth).to.be.a("number").and.above(0);
+      });
+
+      // warrantyInformation
+      pm.test("warrantyInformation is a non-empty string", function () {
+          pm.expect(responseJson.warrantyInformation).to.be.a("string").and.not.empty;
+      });
+
+      // shippingInformation
+      pm.test("shippingInformation is a non-empty string", function () {
+          pm.expect(responseJson.shippingInformation).to.be.a("string").and.not.empty;
+      });
+
+      // availabilityStatus
+      pm.test("availabilityStatus is a non-empty string", function () {
+          pm.expect(responseJson.availabilityStatus).to.be.a("string").and.not.empty;
+      });
+
+      // reviews
+      pm.test("reviews is an array", function () {
+          pm.expect(responseJson.reviews).to.be.an("array");
+      });
+
+      pm.test("each review has required fields with correct types", function () {
+          responseJson.reviews.forEach(function (review) {
+              pm.expect(review.rating).to.be.a("number").and.within(0, 5);
+              pm.expect(review.comment).to.be.a("string").and.not.empty;
+              pm.expect(review.date).to.be.a("string").and.not.empty;
+              pm.expect(review.reviewerName).to.be.a("string").and.not.empty;
+              pm.expect(review.reviewerEmail).to.be.a("string").and.match(/.+@.+\..+/);
+          });
+      });
+
+      // returnPolicy
+      pm.test("returnPolicy is a non-empty string", function () {
+          pm.expect(responseJson.returnPolicy).to.be.a("string").and.not.empty;
+      });
+
+      // minimumOrderQuantity
+      pm.test("minimumOrderQuantity is a positive integer", function () {
+          pm.expect(responseJson.minimumOrderQuantity).to.be.a("number");
+          pm.expect(responseJson.minimumOrderQuantity).to.be.above(0);
+      });
+
+      // meta
+      pm.test("meta has createdAt, updatedAt, barcode, and qrCode", function () {
+          pm.expect(responseJson.meta).to.be.an("object");
+          pm.expect(responseJson.meta.createdAt).to.be.a("string").and.not.empty;
+          pm.expect(responseJson.meta.updatedAt).to.be.a("string").and.not.empty;
+          pm.expect(responseJson.meta.barcode).to.be.a("string").and.not.empty;
+          pm.expect(responseJson.meta.qrCode).to.be.a("string").and.match(/^https?:\/\/.+/);
+      });
+
+      // images
+      pm.test("images is a non-empty array of URL strings", function () {
+          pm.expect(responseJson.images).to.be.an("array").and.not.empty;
+          responseJson.images.forEach(img => pm.expect(img).to.be.a("string").and.match(/^https?:\/\/.+/));
+      });
+
+      // thumbnail
+      pm.test("thumbnail is a valid URL string", function () {
+          pm.expect(responseJson.thumbnail).to.be.a("string").and.match(/^https?:\/\/.+/);
+      });
+    language: text/javascript
+order: 2000
